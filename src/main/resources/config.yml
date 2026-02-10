@@ -9,6 +9,7 @@ sync-delay-ticks: 1
 cooldown-ms: 50
 
 # Should the plugin fix "Ghost Anchors" (getting stuck in mid-air)?
+# Ghost Anchor and more...
 enable-ghost-anchor-fix: true
 
 # Show debug messages in the console? (Useful for testing)
