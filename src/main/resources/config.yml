@@ -1,0 +1,15 @@
+# GhostBlockFixer Configuration
+# -----------------------------
+
+# How many ticks to wait before checking the block status on the server?
+# Higher ping = Higher delay recommended (1-3 ticks).
+sync-delay-ticks: 1
+
+# Cooldown in milliseconds between checks to prevent packet spam.
+cooldown-ms: 50
+
+# Should the plugin fix "Ghost Anchors" (getting stuck in mid-air)?
+enable-ghost-anchor-fix: true
+
+# Show debug messages in the console? (Useful for testing)
+debug-messages: false
