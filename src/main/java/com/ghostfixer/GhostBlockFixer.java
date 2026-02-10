@@ -18,18 +18,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
 public class GhostBlockFixer extends JavaPlugin implements Listener {
 
-    // Config Variables
     private long delayTicks;
     private long cooldownMs;
     private boolean anchorFixEnabled;
     private boolean debug;
-
-    // Cache
     private final WeakHashMap<UUID, Long> cooldowns = new WeakHashMap<>();
 
     @Override
@@ -40,15 +38,13 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
             return;
         }
 
-        // Load Config
         saveDefaultConfig();
         loadConfigValues();
 
-        // Register Listeners
         getServer().getPluginManager().registerEvents(this, this);
         registerPacketListeners();
 
-        getLogger().info("GhostBlockFixer loaded successfully! (Delay: " + delayTicks + " ticks)");
+        getLogger().info("GhostBlockFixer loaded! (Compatible with 1.8 - 1.21)");
     }
 
     private void loadConfigValues() {
@@ -63,14 +59,12 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("ghostfixer")) {
             if (!sender.hasPermission("ghostfixer.admin")) {
-                sender.sendMessage(ChatColor.RED + "You do not have permission.");
+                sender.sendMessage(ChatColor.RED + "No permission.");
                 return true;
             }
-
             if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
                 loadConfigValues();
-                sender.sendMessage(ChatColor.GREEN + "[GhostBlockFixer] Configuration reloaded!");
-                if (debug) getLogger().info("Debug mode enabled.");
+                sender.sendMessage(ChatColor.GREEN + "[GhostBlockFixer] Reloaded!");
                 return true;
             }
         }
@@ -85,14 +79,9 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
             @Override
             public void onPacketReceiving(PacketEvent event) {
                 final Player player = event.getPlayer();
-                if (player == null) return;
-
-                if (isOnCooldown(player)) return;
+                if (player == null || isOnCooldown(player)) return;
+                
                 setCooldown(player);
-
-                if (debug) {
-                    getLogger().info("Packet received from " + player.getName() + ". Syncing in " + delayTicks + " ticks.");
-                }
 
                 Bukkit.getScheduler().runTaskLater(GhostBlockFixer.this, new Runnable() {
                     @Override
@@ -109,31 +98,25 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (!anchorFixEnabled) return;
-
         Player player = event.getPlayer();
-        Location loc = player.getLocation();
-
-        // Only check if coordinates changed significantly
+        
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
             event.getFrom().getBlockY() == event.getTo().getBlockY() &&
             event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
 
-        Block blockUnder = loc.clone().subtract(0, 1, 0).getBlock();
-
-        // Ghost Anchor Logic: Server says AIR, Client says GROUND
+        Block blockUnder = player.getLocation().clone().subtract(0, 1, 0).getBlock();
         if (blockUnder.getType() == Material.AIR && player.isOnGround()) {
-             if (debug) getLogger().info("Ghost Anchor detected for " + player.getName());
              updateBlock(player, blockUnder);
         }
     }
 
     private void syncTargetBlock(Player player) {
-        Block targetBlock = player.getTargetBlock(null, 6);
+        // HATA BURADAYDI: (Set<Material>) null diyerek belirsizligi cozuyoruz
+        Block targetBlock = player.getTargetBlock((Set<Material>) null, 6);
         if (targetBlock != null) {
             updateBlock(player, targetBlock);
-            // Sync neighbors
             updateBlock(player, targetBlock.getRelative(1, 0, 0));
             updateBlock(player, targetBlock.getRelative(-1, 0, 0));
             updateBlock(player, targetBlock.getRelative(0, 1, 0));
@@ -146,9 +129,10 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
     @SuppressWarnings("deprecation")
     private void updateBlock(Player player, Block block) {
         try {
+            // 1.8 ve 1.21 arasi en stabil yol
             player.sendBlockChange(block.getLocation(), block.getType(), block.getData());
         } catch (Exception e) {
-            // Ignored for safety in varying versions
+            if (debug) getLogger().warning("Failed to sync block at: " + block.getLocation());
         }
     }
 
@@ -160,4 +144,5 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
     private void setCooldown(Player player) {
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
     }
-  }
+            }
+                                   
