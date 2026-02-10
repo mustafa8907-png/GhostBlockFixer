@@ -1,0 +1,19 @@
+name: GhostBlockFixer
+version: 1.1.0
+main: com.ghostfixer.GhostBlockFixer
+api-version: 1.13
+depend: [ProtocolLib]
+description: Advanced packet-level ghost block fixer.
+author: mustafa8907
+
+commands:
+  ghostfixer:
+    description: Main command for GhostBlockFixer
+    usage: /ghostfixer reload
+    permission: ghostfixer.admin
+
+permissions:
+  ghostfixer.admin:
+    description: Allows reloading the configuration
+    default: op
+    
