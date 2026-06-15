@@ -7,7 +7,6 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -18,11 +17,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
 public class GhostBlockFixer extends JavaPlugin implements Listener {
+
+    // --- ANSI RENK KODLARI VE SEMBOLLER (Konsol İçin) ---
+    private static final String ANSI_CYAN = "\u001B[36m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_PURPLE = "\u001B[35m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String CHECK = "\u2713"; 
+    private static final String CROSS = "\u274C"; 
 
     private long delayTicks;
     private long cooldownMs;
@@ -32,19 +40,37 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        // --- N-E-X-U-S BAŞLANGIÇ LOGU ---
+        Bukkit.getConsoleSender().sendMessage(ANSI_CYAN + "------------N-E-X-U-S-------------" + ANSI_RESET);
+        Bukkit.getConsoleSender().sendMessage(ANSI_GREEN + "Plugin created by mustafa8907" + ANSI_RESET);
+        Bukkit.getConsoleSender().sendMessage(ANSI_YELLOW + "Website: mustafa8907.com.tr" + ANSI_RESET);
+        Bukkit.getConsoleSender().sendMessage(ANSI_PURPLE + "Discord: discord.gg/mustafa8907" + ANSI_RESET);
+        Bukkit.getConsoleSender().sendMessage(ANSI_CYAN + "-----------S-E-T-UP-S---------------" + ANSI_RESET);
+
+        // --- PROTOCOLLIB KONTROLÜ ---
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().severe("ProtocolLib not found! Disabling plugin.");
+            Bukkit.getConsoleSender().sendMessage(ANSI_RED + "ProtocolLib Undetected " + CROSS + ANSI_RESET);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        Bukkit.getConsoleSender().sendMessage(ANSI_GREEN + "ProtocolLib Detected " + CHECK + ANSI_RESET);
 
+        // --- VERSİYON KONTROLÜ VE BAŞLATMA MESAJLARI ---
+        String serverVersion = Bukkit.getServer().getBukkitVersion().split("-")[0];
+        
+        Bukkit.getConsoleSender().sendMessage(ANSI_YELLOW + serverVersion + " detected" + ANSI_RESET);
+        Bukkit.getConsoleSender().sendMessage(ANSI_CYAN + "GhostBlocks Fixing..." + ANSI_RESET);
+        
+        // Config Ayarları
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         loadConfigValues();
 
+        // Event Kayıtları
         getServer().getPluginManager().registerEvents(this, this);
         registerPacketListeners();
 
-        getLogger().info("GhostBlockFixer loaded! (Compatible with 1.8 - 1.21)");
+        Bukkit.getConsoleSender().sendMessage(ANSI_GREEN + "GhostBlockFixer is Working" + ANSI_RESET);
     }
 
     private void loadConfigValues() {
@@ -80,15 +106,12 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
             public void onPacketReceiving(PacketEvent event) {
                 final Player player = event.getPlayer();
                 if (player == null || isOnCooldown(player)) return;
-                
+
                 setCooldown(player);
 
-                Bukkit.getScheduler().runTaskLater(GhostBlockFixer.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        if (player.isOnline()) {
-                            syncTargetBlock(player);
-                        }
+                Bukkit.getScheduler().runTaskLater(GhostBlockFixer.this, () -> {
+                    if (player.isOnline()) {
+                        syncTargetBlock(player);
                     }
                 }, delayTicks);
             }
@@ -98,7 +121,6 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (!anchorFixEnabled) return;
-        Player player = event.getPlayer();
         
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
             event.getFrom().getBlockY() == event.getTo().getBlockY() &&
@@ -106,15 +128,16 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
             return;
         }
 
+        Player player = event.getPlayer();
         Block blockUnder = player.getLocation().clone().subtract(0, 1, 0).getBlock();
         if (blockUnder.getType() == Material.AIR && player.isOnGround()) {
-             updateBlock(player, blockUnder);
+            updateBlock(player, blockUnder);
         }
     }
 
     private void syncTargetBlock(Player player) {
-        // HATA BURADAYDI: (Set<Material>) null diyerek belirsizligi cozuyoruz
-        Block targetBlock = player.getTargetBlock((Set<Material>) null, 6);
+        // Set<Material> null castine artık gerek yok, modern sürümde çalışıyoruz
+        Block targetBlock = player.getTargetBlock(null, 6);
         if (targetBlock != null) {
             updateBlock(player, targetBlock);
             updateBlock(player, targetBlock.getRelative(1, 0, 0));
@@ -126,23 +149,21 @@ public class GhostBlockFixer extends JavaPlugin implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void updateBlock(Player player, Block block) {
         try {
-            // 1.8 ve 1.21 arasi en stabil yol
-            player.sendBlockChange(block.getLocation(), block.getType(), block.getData());
+            // Modern API: Direkt getBlockData() kullanımı
+            player.sendBlockChange(block.getLocation(), block.getBlockData());
         } catch (Exception e) {
             if (debug) getLogger().warning("Failed to sync block at: " + block.getLocation());
         }
     }
 
     private boolean isOnCooldown(Player player) {
-        return cooldowns.containsKey(player.getUniqueId()) && 
-               (System.currentTimeMillis() - cooldowns.get(player.getUniqueId()) < cooldownMs);
+        return cooldowns.containsKey(player.getUniqueId()) &&
+                (System.currentTimeMillis() - cooldowns.get(player.getUniqueId()) < cooldownMs);
     }
 
     private void setCooldown(Player player) {
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
     }
-            }
-                                   
+}
