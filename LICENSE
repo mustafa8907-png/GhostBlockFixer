@@ -1,21 +1,47 @@
-MIT License
+CUSTOM LICENSE FOR GHOSTBLOCKFİXER
 
 Copyright (c) 2026 mustafa8907-png
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+TERMS AND CONDITIONS
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. RESTRICTIONS ON DISTRIBUTION AND SALE
+   - This plugin is strictly prohibited from being sold for profit.
+   - No distribution of this plugin through any paid channels is permitted.
+   - The plugin may not be packaged, bundled, or sold as part of a commercial product or service.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. PUBLIC REPOSITORY DISTRIBUTION
+   - You are permitted to copy this code and distribute it publicly in a repository (GitHub, GitLab, etc.).
+   - Public distributions must be presented in a different way than the original implementation.
+   - The original source must be credited and properly attributed.
+
+3. MODIFICATIONS AND FORKS
+   - You are allowed to modify and create forks of this code.
+   - All modified versions and forks must remain private to GitHub or similar platforms.
+   - Forks may not be published as standalone products, plugins, or services.
+   - Modified versions must include a clear indication that they are derivatives of the original work.
+
+4. USAGE RIGHTS
+   - You may use this plugin for personal and non-commercial purposes.
+   - You may use this plugin in open-source projects.
+   - You may study and learn from the code.
+
+5. PROHIBITIONS
+   - You may not sell, resell, or license this plugin.
+   - You may not remove or alter copyright notices or license information.
+   - You may not distribute the plugin through marketplaces, plugin stores, or commercial platforms.
+   - You may not publish forks or modified versions as public products or services.
+
+6. NO WARRANTY
+   This plugin is provided "as is" without warranty of any kind, express or implied, including
+   but not limited to the warranties of merchantability, fitness for a particular purpose, and
+   noninfringement. The author shall not be liable for any claim, damages, or other liability
+   arising from the use or distribution of this plugin.
+
+7. TERMINATION
+   If you violate any of the terms of this license, your rights under this license are
+   immediately terminated.
+
+8. GOVERNING LAW
+   This license is governed by and construed in accordance with applicable law.
+
+For questions about usage rights, please contact the project owner.
